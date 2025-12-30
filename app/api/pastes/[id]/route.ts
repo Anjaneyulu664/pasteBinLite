@@ -12,18 +12,18 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   if (paste.expiresAt && paste.expiresAt.getTime() <= now)
     return NextResponse.json({ error: "Expired" }, { status: 404 });
 
-  if (paste.maxViews !== null && paste.viewsUsed >= paste.maxViews)
+  if (paste.maxViews !== null && paste.views >= paste.maxViews)
     return NextResponse.json({ error: "View limit exceeded" }, { status: 404 });
 
   await prisma.paste.update({
     where: { id: paste.id },
-    data: { viewsUsed: { increment: 1 } }
+    data: { views: { increment: 1 } }
   });
 
   return NextResponse.json({
     content: paste.content,
     remaining_views:
-      paste.maxViews === null ? null : paste.maxViews - paste.viewsUsed - 1,
+      paste.maxViews === null ? null : paste.maxViews - paste.views- 1,
     expires_at: paste.expiresAt ? paste.expiresAt.toISOString() : null
   });
 }
